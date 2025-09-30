@@ -1,7 +1,6 @@
 import { signOut } from 'firebase/auth';
 import { Button, Text, View } from 'react-native';
 import { auth } from '../firebase';
-
 export default function HomeScreen({ navigation }) {
   const handleLogout = async () => {
     await signOut(auth);
@@ -21,6 +20,5 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 }
-
 
 

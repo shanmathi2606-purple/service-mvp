@@ -1,8 +1,9 @@
 
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { useState } from "react";
 import { Alert, Dimensions, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 
 // iPhone 14 Plus dimensions
 const IPHONE_14_PLUS_WIDTH = 428;
@@ -13,11 +14,35 @@ const scale = deviceWidth / IPHONE_14_PLUS_WIDTH;
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loginType, setLoginType] = useState("customer"); // "customer" or "business"
 
   const handleLogin = async () => {
     try {
       const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
-      navigation.replace("Home");
+      
+      // Check user role in Firestore (optional: for future role-based validation)
+      try {
+        const userDoc = await getDoc(doc(db, "users", cred.user.uid));
+        const userData = userDoc.data();
+        
+        // If user data exists and has a role, you could validate it matches loginType
+        if (userData && userData.role && userData.role !== loginType) {
+          Alert.alert(
+            "Login Type Mismatch", 
+            `This account is registered as ${userData.role}. Please select the correct login type.`
+          );
+          return;
+        }
+      } catch (error) {
+        console.log("User document not found, proceeding with login");
+      }
+      
+      // Navigate based on login type
+      if (loginType === "business") {
+        navigation.replace("BusinessBookings"); // Navigate to business dashboard
+      } else {
+        navigation.replace("Home"); // Navigate to customer home
+      }
     } catch (e) {
       Alert.alert("Login failed", e.message);
     }
@@ -35,6 +60,38 @@ export default function LoginScreen({ navigation }) {
         {/* Main content */}
         <View style={styles.content}>
           <Text style={styles.signInTitle}>Sign in</Text>
+
+          {/* Login Type Toggle */}
+          <View style={styles.toggleContainer}>
+            <TouchableOpacity
+              style={[
+                styles.toggleButton,
+                loginType === "customer" ? styles.toggleButtonActive : styles.toggleButtonInactive
+              ]}
+              onPress={() => setLoginType("customer")}
+            >
+              <Text style={[
+                styles.toggleText,
+                loginType === "customer" ? styles.toggleTextActive : styles.toggleTextInactive
+              ]}>
+                Customer Login
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.toggleButton,
+                loginType === "business" ? styles.toggleButtonActive : styles.toggleButtonInactive
+              ]}
+              onPress={() => setLoginType("business")}
+            >
+              <Text style={[
+                styles.toggleText,
+                loginType === "business" ? styles.toggleTextActive : styles.toggleTextInactive
+              ]}>
+                Business Login
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           <TextInput
             style={styles.input}
@@ -62,15 +119,22 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>LOGIN</Text>
+            <Text style={styles.buttonText}>
+              {loginType === "business" ? "LOGIN AS BUSINESS" : "LOGIN AS CUSTOMER"}
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* Bottom signup prompt */}
         <View style={styles.bottomPrompt}>
           <Text style={styles.bottomText}>
-            Don’t have an account?{' '}
-            <Text style={styles.signupLink} onPress={() => navigation.navigate("Signup")}>Sign Up</Text>
+            Don't have an account?{' '}
+            <Text 
+              style={styles.signupLink} 
+              onPress={() => navigation.navigate("Signup", { userType: loginType })}
+            >
+              Sign Up as {loginType === "business" ? "Business" : "Customer"}
+            </Text>
           </Text>
         </View>
       </View>
@@ -184,9 +248,39 @@ const styles = StyleSheet.create({
     fontSize: 16 * scale,
     fontWeight: '500',
   },
-    signupLink: {
-      color: '#111',
-      fontWeight: 'bold',
-      textDecorationLine: 'underline',
-    },
-  });
+  signupLink: {
+    color: '#111',
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    marginBottom: 24 * scale,
+    borderRadius: 8 * scale,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#111',
+  },
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 12 * scale,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  toggleButtonActive: {
+    backgroundColor: '#83a3b5',
+  },
+  toggleButtonInactive: {
+    backgroundColor: '#fff',
+  },
+  toggleText: {
+    fontSize: 14 * scale,
+    fontWeight: '600',
+  },
+  toggleTextActive: {
+    color: '#fff',
+  },
+  toggleTextInactive: {
+    color: '#111',
+  },
+});

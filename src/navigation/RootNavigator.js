@@ -7,6 +7,7 @@ import BusinessBookingsScreen from '../screens/BusinessBookingsScreen';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import MyBookingsScreen from '../screens/MyBookingsScreen';
+import Profile from '../screens/Profile';
 import SignupScreen from '../screens/SignupScreen';
 
 const Stack = createNativeStackNavigator();
@@ -48,6 +49,11 @@ export default function RootNavigator() {
         name="BusinessBookings"
         component={BusinessBookingsScreen}
         options={{ title: 'All Bookings' }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={Profile}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

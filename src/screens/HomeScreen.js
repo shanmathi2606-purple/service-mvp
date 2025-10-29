@@ -1,20 +1,34 @@
 // src/screens/HomeScreen.js
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { signOut } from "firebase/auth";
+import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import { auth } from "../firebase";
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigation.replace("Login");
+    } catch (error) {
+      Alert.alert("Logout Error", error.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
 
         {/* Header */}
         <View style={styles.header}>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutText}>⬅ Logout</Text>
+          </TouchableOpacity>
           <Text style={styles.headerText}>
             Hi Shan,{"\n"}Welcome back👋
           </Text>
-          <Image
-            source={require("../../assets/images/notification.png")}
-            style={styles.notificationIcon}
-          />
+          <TouchableOpacity style={styles.notificationButton}>
+            <Ionicons name="notifications" size={18} color="white" />
+          </TouchableOpacity> 
         </View>
 
         {/* Search Bar */}
@@ -26,27 +40,28 @@ const HomeScreen = () => {
           />
         </View>
 
-        {/* Categories */}
-        <View style={styles.categoriesContainer}>
-          <TouchableOpacity style={styles.categoryBox}>
-            <Image source={require("../../assets/images/Beauty.png")} style={styles.categoryIcon} />
-            <Text style={styles.categoryLabel}>BEAUTY</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.categoryBox}>
-            <Image source={require("../../assets/images/Wellness.png")} style={styles.categoryIcon} />
-            <Text style={styles.categoryLabel}>WELLNESS</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.categoryBox}>
-            <Image source={require("../../assets/images/Freelance.png")} style={styles.categoryIcon} />
-            <Text style={styles.categoryLabel}>FREELANCE</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.categoryBox}>
-            <Image source={require("../../assets/images/Food & Dining.png")} style={styles.categoryIcon} />
-            <Text style={styles.categoryLabel}>FOOD & DINING</Text>
-          </TouchableOpacity>
+        {/* Category Icons */}
+        <View style={styles.categoryContainer}>
+          <View style={styles.categoryRow}>
+            <TouchableOpacity style={styles.categoryButton}>
+              <Image source={require("../../assets/images/Beauty.png")} style={styles.categoryIcon} />
+              <Text style={styles.categoryText}>Beauty</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.categoryButton}>
+              <Image source={require("../../assets/images/Wellness.png")} style={styles.categoryIcon} />
+              <Text style={styles.categoryText}>Wellness</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.categoryRow}>
+            <TouchableOpacity style={styles.categoryButton}>
+              <Image source={require("../../assets/images/FoodDining.png")} style={styles.categoryIcon} />
+              <Text style={styles.categoryText}>Food & Dining</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.categoryButton}>
+              <Image source={require("../../assets/images/Freelance.png")} style={styles.categoryIcon} />
+              <Text style={styles.categoryText}>Freelance</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Find Nearby Section */}
@@ -76,14 +91,52 @@ const HomeScreen = () => {
           <Text style={styles.distance}>3.5 km</Text>
         </View>
 
+        <View style={styles.card}>
+          <Image source={require("../../assets/images/Haily Home Spa.png")} style={styles.cardImage} />
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>Haily Home Spa</Text>
+            <Text style={styles.cardSubtitle}>📍 Farrer Park, Singapore</Text>
+            <Text style={styles.cardRating}>⭐ 4.1 (28)</Text>
+          </View>
+          <Text style={styles.distance}>6.7 km</Text>
+        </View>
+       
+       <View style={styles.card}>
+          <Image source={require("../../assets/images/Jills Head Spa.png")} style={styles.cardImage} />
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>Jills Head Spa</Text>
+            <Text style={styles.cardSubtitle}>📍 14 Farrer Park, Singapore</Text>
+            <Text style={styles.cardRating}>⭐ 4.2 (40)</Text>
+          </View>
+          <Text style={styles.distance}>7.0 km</Text>
+        </View>
+       
+      <View style={styles.card}>
+          <Image source={require("../../assets/images/Ram's Indian Dining.png")} style={styles.cardImage} />
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>Ram's Indian Dining</Text>
+            <Text style={styles.cardSubtitle}>📍 15 Thomson Park, Singapore</Text>
+            <Text style={styles.cardRating}>⭐ 4.7 (63)</Text>
+          </View>
+          <Text style={styles.distance}>11.0 km</Text>
+        </View>
+
       </ScrollView>
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <Text style={styles.navItem}>🏠 Home</Text>
-        <Text style={styles.navItem}>📅 My Bookings</Text>
-        <Text style={styles.navItem}>♡ Favourites</Text>
-        <Text style={styles.navItem}>👤 Profile</Text>
+        <TouchableOpacity>
+          <Text style={styles.navItem}> Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("MyBookings")}>
+          <Text style={styles.navItem}> My Bookings</Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text style={styles.navItem}>♡ Favourites</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+          <Text style={styles.navItem}>👤 Profile</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -97,19 +150,50 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 25,
-    marginTop: 60,
+    alignItems: "flex-start",
+    paddingHorizontal: 15,
+    marginTop: 50,
+    paddingTop: 10,
+  },
+  logoutButton: {
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#EEF3F7",
+    position: "absolute",
+    top: 15,
+    left: 15,
+    zIndex: 10,
+  },
+  logoutText: {
+    color: "#34495E",
+    fontSize: 12,
+    fontWeight: "600",
   },
   headerText: {
     color: "#34495E",
     fontSize: 22,
     fontWeight: "700",
+    flex: 1,
+    textAlign: "center",
+    marginHorizontal: 60,
+    marginTop: 20,
   },
-  notificationIcon: {
-    width: 25,
-    height: 25,
-    tintColor: "#666666ff",
-    marginTop: 5,
+  notificationButton: {
+    backgroundColor: "#34495E",
+    borderRadius: 20,
+    padding: 8,
+    position: "absolute",
+    top: 15,
+    right: 15,
+    zIndex: 10,
   },
   searchContainer: {
     alignItems: "center",
@@ -124,42 +208,48 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
   },
-  categoriesContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    width: "80%",
+  categoryContainer: {
+    width: "90%",
     alignSelf: "center",
     marginTop: 25,
   },
-  categoryBox: {
+  categoryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+  categoryButton: {
     backgroundColor: "#FFFFFF",
-    width: "45%",
-    height: "45%",
-    borderRadius: 12,
-    padding: 15,
+    borderRadius: 15,
+    padding: 20,
     alignItems: "center",
-    marginBottom: 12,
+    justifyContent: "center",
+    width: "47%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: "#EEF3F7",
   },
   categoryIcon: {
-   alignItems: "center",
-    width: 120,
-    height: 120,
-    resizeMode: "contain",
-    marginBottom: 6,
+    width: 40,
+    height: 40,
+    marginBottom: 8,
   },
-  categoryLabel: {
+  categoryText: {
     fontSize: 12,
-    fontWeight: "700",
-    color: "#000",
+    fontWeight: "600",
+    color: "#34495E",
+    textAlign: "center",
   },
   findNearbyRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "90%",
     alignSelf: "center",
-    marginTop: 25,
+    marginTop: 10,
   },
   findNearby: {
     fontSize: 18,

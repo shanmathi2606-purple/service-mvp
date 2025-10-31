@@ -3,6 +3,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useState } from "react";
 import { Alert, Dimensions, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
 import { auth, db } from "../firebase";
 
 // iPhone 14 Plus dimensions
@@ -15,6 +16,7 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginType, setLoginType] = useState("customer"); // "customer" or "business"
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const handleLogin = async () => {
     try {
@@ -103,7 +105,7 @@ export default function LoginScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Password"
-            secureTextEntry
+            secureTextEntry={!isPasswordVisible}
             value={password}
             onChangeText={setPassword}
             placeholderTextColor="#888"
@@ -111,8 +113,15 @@ export default function LoginScreen({ navigation }) {
 
           {/* Password icon and forgotten password row */}
           <View style={styles.passwordRow}>
-            {/* Eye icon placeholder */}
-            <Text style={styles.eyeIcon}>👁️</Text>
+            {/* Eye icon toggle */}
+            <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.eyeIconContainer}>
+              <Ionicons 
+                name={isPasswordVisible ? "eye" : "eye-off"} 
+                size={20 * scale} 
+                color="#fff" 
+                style={styles.eyeIcon}
+              />
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => {}}>
               <Text style={styles.forgotPassword}>Forgotten Password?</Text>
             </TouchableOpacity>
@@ -205,10 +214,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     marginBottom: 18 * scale,
   },
+  eyeIconContainer: {
+    backgroundColor: '#83a3b5',
+    borderRadius: 15 * scale,
+    padding: 8 * scale,
+    marginRight: 12 * scale,
+  },
   eyeIcon: {
-    fontSize: 22 * scale,
-    marginRight: 8 * scale,
-    color: '#888',
+    // Icon styling handled by Ionicons
   },
   forgotPassword: {
     color: '#b0b7be',

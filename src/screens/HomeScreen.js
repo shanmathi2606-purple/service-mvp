@@ -43,21 +43,21 @@ const HomeScreen = ({ navigation }) => {
         {/* Category Icons */}
         <View style={styles.categoryContainer}>
           <View style={styles.categoryRow}>
-            <TouchableOpacity style={styles.categoryButton}>
+            <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate("Beauty")}>
               <Image source={require("../../assets/images/Beauty.png")} style={styles.categoryIcon} />
               <Text style={styles.categoryText}>Beauty</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.categoryButton}>
+            <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate("Wellness")}>
               <Image source={require("../../assets/images/Wellness.png")} style={styles.categoryIcon} />
               <Text style={styles.categoryText}>Wellness</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.categoryRow}>
-            <TouchableOpacity style={styles.categoryButton}>
+            <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate("FoodDining")}>
               <Image source={require("../../assets/images/FoodDining.png")} style={styles.categoryIcon} />
               <Text style={styles.categoryText}>Food & Dining</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.categoryButton}>
+            <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate("Freelance")}>
               <Image source={require("../../assets/images/Freelance.png")} style={styles.categoryIcon} />
               <Text style={styles.categoryText}>Freelance</Text>
             </TouchableOpacity>
@@ -70,8 +70,8 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.viewMap}>📍 View on Map</Text>
         </View>
 
-        {/* Business Cards */}
-        <View style={styles.card}>
+        {/* Business Cards - Now Clickable */}
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("Beauty")}>
           <Image source={require("../../assets/images/lashses.png")} style={styles.cardImage} />
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>Lashes by Mi</Text>
@@ -79,9 +79,9 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.cardRating}>⭐ 4.7 (60)</Text>
           </View>
           <Text style={styles.distance}>2 km</Text>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("Beauty")}>
           <Image source={require("../../assets/images/nails.png")} style={styles.cardImage} />
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>Nails X Bar</Text>
@@ -89,9 +89,9 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.cardRating}>⭐ 4.5 (93)</Text>
           </View>
           <Text style={styles.distance}>3.5 km</Text>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("Wellness")}>
           <Image source={require("../../assets/images/Haily Home Spa.png")} style={styles.cardImage} />
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>Haily Home Spa</Text>
@@ -99,9 +99,9 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.cardRating}>⭐ 4.1 (28)</Text>
           </View>
           <Text style={styles.distance}>6.7 km</Text>
-        </View>
+        </TouchableOpacity>
        
-       <View style={styles.card}>
+       <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("Wellness")}>
           <Image source={require("../../assets/images/Jills Head Spa.png")} style={styles.cardImage} />
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>Jills Head Spa</Text>
@@ -109,9 +109,9 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.cardRating}>⭐ 4.2 (40)</Text>
           </View>
           <Text style={styles.distance}>7.0 km</Text>
-        </View>
+        </TouchableOpacity>
        
-      <View style={styles.card}>
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("FoodDining")}>
           <Image source={require("../../assets/images/Ram's Indian Dining.png")} style={styles.cardImage} />
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>Ram's Indian Dining</Text>
@@ -119,23 +119,27 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.cardRating}>⭐ 4.7 (63)</Text>
           </View>
           <Text style={styles.distance}>11.0 km</Text>
-        </View>
+        </TouchableOpacity>
 
       </ScrollView>
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity>
-          <Text style={styles.navItem}> Home</Text>
+        <TouchableOpacity style={styles.navButton}>
+          <Image source={require("../../assets/images/home.png")} style={styles.navIcon} />
+          <Text style={styles.navItem}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("MyBookings")}>
-          <Text style={styles.navItem}> My Bookings</Text>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("MyBookings")}>
+          <Image source={require("../../assets/images/calendar.png")} style={styles.navIcon} />
+          <Text style={styles.navItem}>My Bookings</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navItem}>♡ Favourites</Text>
+        <TouchableOpacity style={styles.navButton}>
+          <Image source={require("../../assets/images/heart.png")} style={styles.navIcon} />
+          <Text style={styles.navItem}>Favourites</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-          <Text style={styles.navItem}>👤 Profile</Text>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Profile")}>
+          <Image source={require("../../assets/images/user.png")} style={styles.navIcon} />
+          <Text style={styles.navItem}>Profile</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -306,10 +310,21 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
   },
+  navButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 5,
+  },
   navItem: {
     color: "#fff",
-    fontSize: 11,
+    fontSize: 9,
     textAlign: "center",
+    marginTop: 2,
+  },
+  navIcon: {
+    width: 20,
+    height: 20,
+    tintColor: "#fff",
   },
 });
 

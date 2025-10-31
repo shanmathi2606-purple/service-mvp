@@ -2,13 +2,17 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
+import BeautyScreen from '../screens/BeautyScreen';
 import BookingScreen from '../screens/BookingScreen';
 import BusinessBookingsScreen from '../screens/BusinessBookingsScreen';
+import FoodDiningScreen from '../screens/FoodDiningScreen';
+import FreelanceScreen from '../screens/FreelanceScreen';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import MyBookingsScreen from '../screens/MyBookingsScreen';
 import Profile from '../screens/Profile';
 import SignupScreen from '../screens/SignupScreen';
+import WellnessScreen from '../screens/WellnessScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,6 +57,26 @@ export default function RootNavigator() {
       <Stack.Screen
         name="Profile"
         component={Profile}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Beauty"
+        component={BeautyScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Wellness"
+        component={WellnessScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="FoodDining"
+        component={FoodDiningScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Freelance"
+        component={FreelanceScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

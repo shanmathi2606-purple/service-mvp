@@ -2,9 +2,11 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useState } from "react";
-import { Alert, Dimensions, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Dimensions, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { auth, db } from "../firebase";
+import LunarLogo from '../components/LunarLogo';
 
 // iPhone 14 Plus dimensions
 const IPHONE_14_PLUS_WIDTH = 428;
@@ -51,249 +53,348 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        {/* Header with logo */}
-        <View style={styles.header}>
-          {/* Replace below with your logo image if available */}
-          <Text style={styles.headerLogo}>☾ LUNAR</Text>
+    <View style={styles.container}>
+      {/* Gradient Background matching SplashScreen */}
+      <LinearGradient
+        colors={['#1a1a2e', '#16213e', '#0f3460']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradientBackground}
+      />
+      
+      {/* Animated Background Overlay */}
+      <View style={styles.backgroundOverlay}>
+        <LinearGradient
+          colors={['rgba(186, 85, 211, 0.2)', 'rgba(147, 112, 219, 0.15)', 'rgba(138, 43, 226, 0.1)']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+      </View>
+
+      {/* Header with LUNAR Logo */}
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+          <LunarLogo size={120} />
+        </View>
+        <Text style={styles.welcomeText}>Welcome Back</Text>
+        <Text style={styles.welcomeSubtext}>Sign in to continue</Text>
+      </View>
+
+      {/* Main content */}
+      <View style={styles.content}>
+        {/* Login Type Toggle */}
+        <View style={styles.toggleContainer}>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              loginType === "customer" ? styles.toggleButtonActive : styles.toggleButtonInactive
+            ]}
+            onPress={() => setLoginType("customer")}
+          >
+            <Ionicons 
+              name="person" 
+              size={18} 
+              color={loginType === "customer" ? "#FFFFFF" : "#87CEEB"} 
+              style={{ marginRight: 8 }}
+            />
+            <Text style={[
+              styles.toggleText,
+              loginType === "customer" ? styles.toggleTextActive : styles.toggleTextInactive
+            ]}>
+              Customer
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              loginType === "business" ? styles.toggleButtonActive : styles.toggleButtonInactive
+            ]}
+            onPress={() => setLoginType("business")}
+          >
+            <Ionicons 
+              name="business" 
+              size={18} 
+              color={loginType === "business" ? "#FFFFFF" : "#87CEEB"} 
+              style={{ marginRight: 8 }}
+            />
+            <Text style={[
+              styles.toggleText,
+              loginType === "business" ? styles.toggleTextActive : styles.toggleTextInactive
+            ]}>
+              Business
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Main content */}
-        <View style={styles.content}>
-          <Text style={styles.signInTitle}>Sign in</Text>
-
-          {/* Login Type Toggle */}
-          <View style={styles.toggleContainer}>
-            <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                loginType === "customer" ? styles.toggleButtonActive : styles.toggleButtonInactive
-              ]}
-              onPress={() => setLoginType("customer")}
-            >
-              <Text style={[
-                styles.toggleText,
-                loginType === "customer" ? styles.toggleTextActive : styles.toggleTextInactive
-              ]}>
-                Customer Login
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                loginType === "business" ? styles.toggleButtonActive : styles.toggleButtonInactive
-              ]}
-              onPress={() => setLoginType("business")}
-            >
-              <Text style={[
-                styles.toggleText,
-                loginType === "business" ? styles.toggleTextActive : styles.toggleTextInactive
-              ]}>
-                Business Login
-              </Text>
-            </TouchableOpacity>
-          </View>
-
+        {/* Input Fields */}
+        <View style={styles.inputContainer}>
+          <Ionicons name="mail" size={20} color="#87CEEB" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Mobile Number or Email"
             value={email}
             onChangeText={setEmail}
-            placeholderTextColor="#888"
+            placeholderTextColor="rgba(135, 206, 235, 0.7)"
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Ionicons name="lock-closed" size={20} color="#87CEEB" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Password"
             secureTextEntry={!isPasswordVisible}
             value={password}
             onChangeText={setPassword}
-            placeholderTextColor="#888"
+            placeholderTextColor="rgba(135, 206, 235, 0.7)"
           />
-
-          {/* Password icon and forgotten password row */}
-          <View style={styles.passwordRow}>
-            {/* Eye icon toggle */}
-            <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.eyeIconContainer}>
-              <Ionicons 
-                name={isPasswordVisible ? "eye" : "eye-off"} 
-                size={20 * scale} 
-                color="#fff" 
-                style={styles.eyeIcon}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {}}>
-              <Text style={styles.forgotPassword}>Forgotten Password?</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>
-              {loginType === "business" ? "LOGIN AS BUSINESS" : "LOGIN AS CUSTOMER"}
-            </Text>
+          <TouchableOpacity 
+            onPress={() => setIsPasswordVisible(!isPasswordVisible)} 
+            style={styles.eyeIconContainer}
+          >
+            <Ionicons 
+              name={isPasswordVisible ? "eye" : "eye-off"} 
+              size={20} 
+              color="#87CEEB" 
+            />
           </TouchableOpacity>
         </View>
 
-        {/* Bottom signup prompt */}
-        <View style={styles.bottomPrompt}>
-          <Text style={styles.bottomText}>
-            Don't have an account?{' '}
-            <Text 
-              style={styles.signupLink} 
-              onPress={() => navigation.navigate("Signup", { userType: loginType })}
-            >
-              Sign Up as {loginType === "business" ? "Business" : "Customer"}
+        {/* Forgotten Password */}
+        <TouchableOpacity onPress={() => {}} style={styles.forgotPasswordContainer}>
+          <Text style={styles.forgotPassword}>Forgotten Password?</Text>
+        </TouchableOpacity>
+
+        {/* Login Button */}
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <LinearGradient
+            colors={['#87CEEB', '#FFFFFF', '#ADD8E6']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.buttonGradient}
+          >
+            <Ionicons 
+              name={loginType === "business" ? "business" : "person"} 
+              size={20} 
+              color="#1a1a2e" 
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.buttonText}>
+              {loginType === "business" ? "LOGIN AS BUSINESS" : "LOGIN AS CUSTOMER"}
             </Text>
-          </Text>
-        </View>
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
-    </SafeAreaView>
+
+      {/* Bottom signup prompt */}
+      <View style={styles.bottomPrompt}>
+        <Text style={styles.bottomText}>
+          Don't have an account?{' '}
+        </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Signup", { userType: loginType })}>
+          <Text style={styles.signupLink}>
+            Sign Up as {loginType === "business" ? "Business" : "Customer"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Decorative Elements */}
+      <View style={styles.decorativeElements}>
+        <View style={[styles.floatingElement, styles.element1]} />
+        <View style={[styles.floatingElement, styles.element2]} />
+        <View style={[styles.floatingElement, styles.element3]} />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
-    justifyContent: 'space-between',
+  },
+  gradientBackground: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  backgroundOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   header: {
-    backgroundColor: '#83a3b5',
-    height: 180 * scale,
     alignItems: 'center',
     justifyContent: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 30,
   },
-  headerLogo: {
-    color: '#000',
-    fontSize: 40 * scale,
+  logoContainer: {
+    marginBottom: 20,
+  },
+  welcomeText: {
+    fontSize: 28,
     fontWeight: '700',
-    letterSpacing: 2,
+    color: '#FFFFFF',
+    marginBottom: 8,
+    textAlign: 'center',
+    letterSpacing: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  welcomeSubtext: {
+    fontSize: 16,
+    color: '#E6E6FA',
+    textAlign: 'center',
+    fontWeight: '300',
+    letterSpacing: 0.5,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24 * scale,
-    paddingTop: 32 * scale,
-  },
-  signInTitle: {
-    fontSize: 28 * scale,
-    fontWeight: 'bold',
-    marginBottom: 24 * scale,
-    color: '#111',
-    textAlign: 'left',
-    textDecorationLine: 'underline',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#111',
-    borderRadius: 8 * scale,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16 * scale,
-    paddingVertical: Platform.OS === 'ios' ? 14 * scale : 10 * scale,
-    fontSize: 16 * scale,
-    marginBottom: 18 * scale,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  passwordRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginBottom: 18 * scale,
-  },
-  eyeIconContainer: {
-    backgroundColor: '#83a3b5',
-    borderRadius: 15 * scale,
-    padding: 8 * scale,
-    marginRight: 12 * scale,
-  },
-  eyeIcon: {
-    // Icon styling handled by Ionicons
-  },
-  forgotPassword: {
-    color: '#b0b7be',
-    textDecorationLine: 'underline',
-    fontSize: 14 * scale,
-  },
-  button: {
-    borderWidth: 1,
-    borderColor: '#111',
-    borderRadius: 8 * scale,
-    backgroundColor: '#f9fafb',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14 * scale,
-    marginTop: 10 * scale,
-    marginBottom: 10 * scale,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  buttonText: {
-    color: '#222',
-    fontWeight: '500',
-    fontSize: 18 * scale,
-  },
-  bottomPrompt: {
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    paddingVertical: 18 * scale,
-    alignItems: 'center',
-    backgroundColor: '#f9fafb',
-  },
-  bottomText: {
-    color: '#888',
-    fontSize: 16 * scale,
-    fontWeight: '500',
-  },
-  signupLink: {
-    color: '#111',
-    fontWeight: 'bold',
-    textDecorationLine: 'underline',
+    paddingHorizontal: 30,
+    paddingTop: 20,
   },
   toggleContainer: {
     flexDirection: 'row',
-    marginBottom: 24 * scale,
-    borderRadius: 8 * scale,
+    marginBottom: 30,
+    borderRadius: 25,
     overflow: 'hidden',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 1,
-    borderColor: '#111',
+    borderColor: 'rgba(135, 206, 235, 0.3)',
   },
   toggleButton: {
     flex: 1,
-    paddingVertical: 12 * scale,
+    paddingVertical: 15,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
   },
   toggleButtonActive: {
-    backgroundColor: '#83a3b5',
+    backgroundColor: 'rgba(135, 206, 235, 0.3)',
   },
   toggleButtonInactive: {
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
   },
   toggleText: {
-    fontSize: 14 * scale,
+    fontSize: 14,
     fontWeight: '600',
   },
   toggleTextActive: {
-    color: '#fff',
+    color: '#FFFFFF',
   },
   toggleTextInactive: {
-    color: '#111',
+    color: '#87CEEB',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 20,
+    marginBottom: 20,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(135, 206, 235, 0.3)',
+  },
+  inputIcon: {
+    marginRight: 15,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: Platform.OS === 'ios' ? 18 : 15,
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: '500',
+  },
+  eyeIconContainer: {
+    padding: 5,
+  },
+  forgotPasswordContainer: {
+    alignItems: 'flex-end',
+    marginBottom: 30,
+  },
+  forgotPassword: {
+    color: '#87CEEB',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  button: {
+    borderRadius: 25,
+    overflow: 'hidden',
+    marginBottom: 20,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+  },
+  buttonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 30,
+  },
+  buttonText: {
+    color: '#1a1a2e',
+    fontWeight: '700',
+    fontSize: 16,
+    letterSpacing: 1,
+  },
+  bottomPrompt: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 25,
+    paddingHorizontal: 30,
+  },
+  bottomText: {
+    color: '#E6E6FA',
+    fontSize: 15,
+    fontWeight: '400',
+  },
+  signupLink: {
+    color: '#87CEEB',
+    fontWeight: '600',
+    fontSize: 15,
+    textDecorationLine: 'underline',
+  },
+  decorativeElements: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'none',
+  },
+  floatingElement: {
+    position: 'absolute',
+    borderRadius: 50,
+    backgroundColor: 'rgba(135, 206, 235, 0.1)',
+  },
+  element1: {
+    width: 80,
+    height: 80,
+    top: '20%',
+    right: '10%',
+  },
+  element2: {
+    width: 60,
+    height: 60,
+    top: '60%',
+    left: '5%',
+  },
+  element3: {
+    width: 40,
+    height: 40,
+    top: '80%',
+    right: '20%',
   },
 });

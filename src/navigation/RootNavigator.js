@@ -1,6 +1,7 @@
 // src/navigation/RootNavigator.js
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import SplashScreen from '../screens/SplashScreen';
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 import BeautyScreen from '../screens/BeautyScreen';
 import BookingScreen from '../screens/BookingScreen';
@@ -18,7 +19,12 @@ const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
   return (
-    <Stack.Navigator initialRouteName="AuthLoading">
+    <Stack.Navigator initialRouteName="Splash">
+      <Stack.Screen
+        name="Splash"
+        component={SplashScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="AuthLoading"
         component={AuthLoadingScreen}

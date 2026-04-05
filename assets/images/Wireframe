@@ -1,0 +1,94 @@
+┌─────────────────────────────────────────────────────────────┐
+│                      SITEMAP - LUNAR                        │
+│                   Service Booking Platform                  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ↓
+                    ┌─────────────────┐
+                    │  SPLASH SCREEN  │
+                    │  • LUNAR Logo   │
+                    │  • Loading      │
+                    └─────────────────┘
+                              │
+                              ↓
+                   ┌──────────────────┐
+                   │ AUTH LOADING     │
+                   │ • Check session  │
+                   └──────────────────┘
+                              │
+                    ┌─────────┴─────────┐
+                    ↓                   ↓
+          ┌─────────────────┐   ┌──────────────┐
+          │  LOGIN SCREEN   │   │  HOME PAGE   │
+          │  • Email/Pass   │   │  (if logged) │
+          │  • Cust/Biz     │   └──────────────┘
+          │  • Login btn    │
+          │  • Sign up link │
+          └─────────────────┘
+                    │
+                    ↓
+          ┌─────────────────┐
+          │  SIGNUP SCREEN  │
+          │  • Full name    │
+          │  • Email/phone  │
+          │  • Password     │
+          │  • Account type │
+          │  • Create btn   │
+          └─────────────────┘
+                    │
+                    ↓
+┌───────────────────────────────────────────────────────────────┐
+│                    MAIN APP (After Login)                     │
+└───────────────────────────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ↓                     ↓                     ↓
+┌──────────────┐    ┌──────────────────┐    ┌─────────────┐
+│  HOME PAGE   │    │  FAVORITES PAGE  │    │ PROFILE PAGE│
+│              │    │                  │    │             │
+│ • Search bar │    │ • Saved biz      │    │ • User info │
+│ • Categories │    │ • Quick access   │    │ • Settings  │
+│ • Biz cards  │    │ • Add/remove ⭐  │    │ • Bookings  │
+│ • Ratings    │    │ • Empty state    │    │ • Logout    │
+└──────────────┘    └──────────────────┘    └─────────────┘
+        │                                           │
+        ↓                                           ↓
+┌──────────────────────┐                  ┌──────────────────┐
+│ BUSINESS PROFILE     │                  │ MY BOOKINGS      │
+│                      │                  │                  │
+│ • Header image       │                  │ • Upcoming       │
+│ • Name, rating       │                  │ • Past history   │
+│ • Description        │                  │ • Details        │
+│ • Services + prices  │                  │ • Cancel/edit    │
+│ • Business hours     │                  │ • + FAB (new)    │
+│ • Contact info       │                  └──────────────────┘
+│ • Book Now button ───┼─────────┐               │
+└──────────────────────┘         │               │
+                                 ↓               ↓
+                        ┌──────────────────────────┐
+                        │   BOOKING SCREEN         │
+                        │   (Calendar Page)        │
+                        │                          │
+                        │ • Month/year selector    │
+                        │ • Interactive calendar   │
+                        │ • Date picker            │
+                        │ • Time slots             │
+                        │ • Service selection      │
+                        │ • Special requests       │
+                        │ • Confirm booking        │
+                        └──────────────────────────┘
+                                 │
+                                 ↓
+                        ┌──────────────────┐
+                        │ CONFIRMATION     │
+                        │ • Success msg    │
+                        │ • Booking details│
+                        │ • Return to home │
+                        └──────────────────┘
+
+┌───────────────────────────────────────────────────────────────┐
+│              BOTTOM NAVIGATION (Always Visible)               │
+├───────────────┬───────────────┬───────────────┬───────────────┤
+│   🏠 Home     │   ⭐ Favorites │  📅 Bookings  │  👤 Profile   │
+└───────────────┴───────────────┴───────────────┴───────────────┘

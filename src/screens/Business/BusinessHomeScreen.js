@@ -1,9 +1,168 @@
+
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import BusinessBottomNav from '../../../components/BusinessBottomNav';
 import BusinessTopBar from '../../../components/BusinessTopBar';
 import { auth, db } from '../../firebase';
+
+// Modern styles for profile, reminders, dashboard
+const modernStyles = StyleSheet.create({
+    summaryCard: {
+      backgroundColor: '#fff',
+      borderRadius: 24,
+      marginHorizontal: 18,
+      marginTop: 18,
+      marginBottom: 10,
+      padding: 22,
+      shadowColor: '#000',
+      shadowOpacity: 0.07,
+      shadowRadius: 10,
+      elevation: 3,
+    },
+    summaryStat: {
+      color: '#888',
+      fontSize: 13,
+      marginRight: 8,
+    },
+    summaryStatNum: {
+      color: '#6F4EF2',
+      fontWeight: 'bold',
+      fontSize: 15,
+    },
+  container: {
+    flex: 1,
+    backgroundColor: '#F7F5EF',
+  },
+  profileCard: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    marginHorizontal: 18,
+    marginTop: 18,
+    marginBottom: 10,
+    padding: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  avatarShadow: {
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
+    borderRadius: 32,
+    backgroundColor: '#fff',
+    padding: 2,
+  },
+  avatarCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#e6e6fa',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarInitial: {
+    fontSize: 28,
+    color: '#6F4EF2',
+    fontWeight: 'bold',
+  },
+  greeting: {
+    color: '#888',
+    fontSize: 15,
+    marginBottom: 2,
+  },
+  businessName: {
+    color: '#2a3656',
+    fontWeight: 'bold',
+    fontSize: 19,
+  },
+  sectionCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    marginHorizontal: 18,
+    marginTop: 14,
+    marginBottom: 0,
+    padding: 18,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  sectionTitle: {
+    color: '#2a3656',
+    fontSize: 17,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
+  sectionSub: {
+    color: '#888',
+    fontSize: 13,
+    marginBottom: 10,
+  },
+  sectionEmpty: {
+    color: '#bbb',
+    fontSize: 14,
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  reminderCard: {
+    backgroundColor: '#f7f7fd',
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  reminderMain: {
+    color: '#2a3656',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  reminderSub: {
+    color: '#888',
+    fontSize: 13,
+    marginBottom: 2,
+  },
+  reminderNote: {
+    color: '#6F4EF2',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: '#f7f7fd',
+    borderRadius: 14,
+    marginHorizontal: 4,
+    padding: 14,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  statLabel: {
+    color: '#888',
+    fontSize: 13,
+    marginBottom: 4,
+    fontWeight: '600',
+  },
+  statValue: {
+    color: '#2a3656',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+});
 
 export default function BusinessHomeScreen({ navigation }) {
   const [tab, setTab] = useState('Ongoing');
@@ -92,43 +251,88 @@ export default function BusinessHomeScreen({ navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: '#F7F5EF' }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 120, paddingTop: 0 }}>
-        <View style={styles.container}>
+        <View style={modernStyles.container}>
           {/* Top Header Bar */}
           <BusinessTopBar navigation={navigation} title="Business Home" />
-          {/* Recent Bookings Section */}
-          <View style={[dashboardStyles.section, { marginTop: 8, backgroundColor: '#2a3656' }]}> 
-            <Text style={dashboardStyles.sectionTitle}>Recent Bookings</Text>
-            {bookings.length === 0 ? (
-              <Text style={{ color: '#b2becd' }}>No bookings yet.</Text>
+
+          {/* Modern Business Summary Card */}
+          <View style={modernStyles.summaryCard}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+              <View style={modernStyles.avatarShadow}>
+                <View style={modernStyles.avatarCircle}>
+                  <Text style={modernStyles.avatarInitial}>B</Text>
+                </View>
+              </View>
+              <View style={{ marginLeft: 14, flex: 1 }}>
+                <Text style={modernStyles.greeting}>Welcome back,</Text>
+                <Text style={modernStyles.businessName}>Your Business Name</Text>
+                <Text style={{ color: '#888', fontSize: 13, marginTop: 2 }}>Let's make today productive!</Text>
+                <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                  <Text style={modernStyles.summaryStat}><Text style={modernStyles.summaryStatNum}>{reminders.length}</Text> bookings today</Text>
+                  <Text style={[modernStyles.summaryStat, { marginLeft: 18 }]}><Text style={modernStyles.summaryStatNum}>{totalRevenue}</Text> total revenue</Text>
+                </View>
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 18 }}>
+              <View style={modernStyles.quickActionCard}>
+                <Text style={modernStyles.quickActionIcon}>📅</Text>
+                <Text style={modernStyles.quickActionLabel}>Calendar</Text>
+              </View>
+              <View style={modernStyles.quickActionCard}>
+                <Text style={modernStyles.quickActionIcon}>➕</Text>
+                <Text style={modernStyles.quickActionLabel}>Add Booking</Text>
+              </View>
+              <View style={modernStyles.quickActionCard}>
+                <Text style={modernStyles.quickActionIcon}>💬</Text>
+                <Text style={modernStyles.quickActionLabel}>Inbox</Text>
+              </View>
+            </View>
+            <View style={{ marginTop: 18 }}>
+              <Text style={modernStyles.tipsTitle}>Tips for Success</Text>
+              <Text style={modernStyles.tipsText}>• Respond to bookings quickly for better ratings.{'\n'}• Keep your calendar up to date.{'\n'}• Personalize your profile for more bookings!</Text>
+            </View>
+          </View>
+
+
+          {/* Reminders Section */}
+          <View style={modernStyles.sectionCard}>
+            <Text style={modernStyles.sectionTitle}>Today's Reminders</Text>
+            {reminders.length === 0 ? (
+              <Text style={modernStyles.sectionEmpty}>No reminders for today.</Text>
             ) : (
-              bookings.slice(0, 5).map((b, i) => (
-                <View key={i} style={{ marginBottom: 10, backgroundColor: '#223', borderRadius: 8, padding: 10 }}>
-                  <Text style={{ color: '#fff', fontWeight: '600' }}>{b.customerName || b.customerId || 'Customer'} - {b.time}</Text>
-                  <Text style={{ color: '#b2becd', fontSize: 13 }}>{b.service || 'Service'} | {b.date}</Text>
-                  {b.note ? <Text style={{ color: '#b2becd', fontSize: 12 }}>Note: {b.note}</Text> : null}
+              reminders.map((r, i) => (
+                <View key={i} style={modernStyles.reminderCard}>
+                  <Text style={modernStyles.reminderMain}>{r.customerName || r.customerId || 'Customer'} - {r.time}</Text>
+                  <Text style={modernStyles.reminderSub}>{r.service || 'Service'} | {r.date}</Text>
+                  {r.note ? <Text style={modernStyles.reminderNote}>Note: {r.note}</Text> : null}
                 </View>
               ))
             )}
           </View>
+
           {/* Dashboard Section */}
-          <View style={[dashboardStyles.section, { backgroundColor: '#2a3656', marginTop: 8 }]}> 
-            <Text style={dashboardStyles.sectionTitle}>Dashboard</Text>
-            <Text style={{ color: '#b2becd', fontSize: 14, marginBottom: 8 }}>This week: {weekRange}</Text>
-            <View style={dashboardStyles.statRow}>
-              <Text style={dashboardStyles.statLabel}>Total Bookings (This Week)</Text>
-              <Text style={dashboardStyles.statValue}>{totalBookingsThisWeek}</Text>
+          <View style={modernStyles.sectionCard}>
+            <Text style={modernStyles.sectionTitle}>Dashboard</Text>
+            <Text style={modernStyles.sectionSub}>This week: {weekRange}</Text>
+            <View style={modernStyles.statsRow}>
+              <View style={modernStyles.statCard}>
+                <Text style={modernStyles.statLabel}>Bookings (Week)</Text>
+                <Text style={modernStyles.statValue}>{totalBookingsThisWeek}</Text>
+              </View>
+              <View style={modernStyles.statCard}>
+                <Text style={modernStyles.statLabel}>Revenue (Week)</Text>
+                <Text style={modernStyles.statValue}>${totalRevenueThisWeek}</Text>
+              </View>
             </View>
-            <View style={dashboardStyles.statRow}>
-              <Text style={dashboardStyles.statLabel}>Total Revenue (This Week)</Text>
-              <Text style={dashboardStyles.statValue}>${totalRevenueThisWeek}</Text>
-            </View>
-            <View style={dashboardStyles.statRow}>
-              <Text style={dashboardStyles.statLabel}>Total Revenue (All Time)</Text>
-              <Text style={dashboardStyles.statValue}>${totalRevenue}</Text>
-            </View>
-            <View style={dashboardStyles.statRow}>
-              <Text style={dashboardStyles.statLabel}>Total Bookings</Text>
-              <Text style={dashboardStyles.statValue}>{totalBookings}</Text>
+            <View style={modernStyles.statsRow}>
+              <View style={modernStyles.statCard}>
+                <Text style={modernStyles.statLabel}>Revenue (All)</Text>
+                <Text style={modernStyles.statValue}>${totalRevenue}</Text>
+              </View>
+              <View style={modernStyles.statCard}>
+                <Text style={modernStyles.statLabel}>Bookings (All)</Text>
+                <Text style={modernStyles.statValue}>{totalBookings}</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -138,140 +342,6 @@ export default function BusinessHomeScreen({ navigation }) {
   );
 }
 
-// Action Button Component
-function ActionButton({ label }) {
-  return (
-    <TouchableOpacity style={styles.actionButton}>
-      <Text style={styles.actionButtonIcon}>＋</Text>
-      <Text style={styles.actionButtonLabel}>{label}</Text>
-    </TouchableOpacity>
-  );
-}
-
-// Bottom Nav Icon Component
-function NavIcon({ label, active, badge }) {
-  return (
-    <View style={styles.navIcon}>
-      <View style={[styles.navCircle, active && styles.navCircleActive]} />
-      {badge && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{badge}</Text>
-        </View>
-      )}
-      <Text style={[styles.navLabel, active && styles.navLabelActive]}>{label}</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7F5EF' },
-  // Top bar styles moved to reusable BusinessTopBar component
-  headerTop: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    alignSelf: 'center',
-    marginTop: 30,
-    marginBottom: 10,
-    textAlign: 'center'
-  },
-  headerCard: {
-    backgroundColor: '#6F4EF2',
-    borderRadius: 24,
-    margin: 16,
-    padding: 20,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-  },
-  profileRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  avatar: { width: 40, height: 40, borderRadius: 20, marginRight: 12 },
-  greeting: { color: '#fff', fontSize: 16 },
-  profileName: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
-  salesLabel: { color: '#e0d9fc', marginTop: 8 },
-  salesAmount: { color: '#fff', fontSize: 32, fontWeight: 'bold', marginVertical: 6 },
-  rating: { color: '#e0d9fc', marginBottom: 10 },
-  actionsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
-  actionButton: { alignItems: 'center', flex: 1 },
-  actionButtonIcon: { fontSize: 28, color: '#fff', marginBottom: 2 },
-  actionButtonLabel: { color: '#fff', fontSize: 12 },
-  tabsRow: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: 10,
-    backgroundColor: '#EFEFEF',
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  tabButton: { flex: 1, padding: 10, alignItems: 'center' },
-  tabActive: { backgroundColor: '#fff' },
-  tabText: { color: '#888', fontWeight: '600' },
-  tabTextActive: { color: '#6F4EF2', fontWeight: 'bold' },
-  scroll: { flex: 1, marginTop: 6 },
-  bookingCard: {
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    margin: 16,
-    padding: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-  },
-  bookingHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  bookingAvatar: { width: 36, height: 36, borderRadius: 18, marginRight: 10 },
-  bookingName: { fontWeight: 'bold', fontSize: 16 },
-  bookingRole: { color: '#888', fontSize: 12 },
-  nowBadge: {
-    backgroundColor: '#F44',
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    borderRadius: 10,
-    overflow: 'hidden'
-  },
-  bookingInfo: { marginVertical: 8 },
-  bookingLabel: { color: '#aaa', fontSize: 12 },
-  bookingValue: { fontSize: 14, marginBottom: 2 },
-  viewButton: {
-    backgroundColor: '#6F4EF2',
-    borderRadius: 10,
-    paddingVertical: 8,
-    marginTop: 10,
-    alignItems: 'center'
-  },
-  viewButtonText: { color: '#fff', fontWeight: 'bold' },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    height: 62,
-    borderTopWidth: 1,
-    borderColor: '#eee',
-    backgroundColor: '#fff'
-  },
-  navIcon: { alignItems: 'center', flex: 1 },
-  navCircle: {
-    width: 24, height: 24, borderRadius: 12, backgroundColor: '#ddd', marginBottom: 2
-  },
-  navCircleActive: { backgroundColor: '#6F4EF2' },
-  navLabel: { fontSize: 10, color: '#888' },
-  navLabelActive: { color: '#6F4EF2', fontWeight: 'bold' },
-  badge: {
-    position: 'absolute',
-    right: 10,
-    top: -2,
-    backgroundColor: '#F44',
-    borderRadius: 8,
-    paddingHorizontal: 4,
-    minWidth: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-});
 
 const dashboardStyles = {
   section: { backgroundColor: '#2a3656', borderRadius: 16, margin: 16, padding: 18, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8 },

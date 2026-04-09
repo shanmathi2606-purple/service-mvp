@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
-import { addDoc, collection, doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
-import { useState } from "react";
+import { addDoc, collection, doc, getDoc, onSnapshot, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
 import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import CustomerBottomNav from '../../../components/CustomerBottomNav';
 import { auth, db } from "../../firebase";
@@ -8,7 +8,14 @@ import { auth, db } from "../../firebase";
 export default function BookingScreen({ navigation, route }) {
   // Accept params from navigation (customer flow)
   const { business, selectedDate, selectedSlot, note: prefilledNote } = route?.params || {};
-  const [service, setService] = useState("");
+  // Use business.menu for service selection
+  const services = Array.isArray(business?.menu) ? business.menu : [];
+  const [selectedService, setSelectedService] = useState(null);
+  // Get current date for validation
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const currentDate = today.getDate();
   // selectedDay: number (day of month), selectedTime: string (time slot)
   const [selectedDay, setSelectedDay] = useState(selectedDate ? new Date(selectedDate).getDate() : null);
   const [selectedTime, setSelectedTime] = useState(selectedSlot || "");
@@ -19,19 +26,6 @@ export default function BookingScreen({ navigation, route }) {
   // Calendar state for month/year selection
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  // ...existing code for calendar state...
-
-  // Get current date for validation
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
-  const currentDate = today.getDate();
-
-  // Month names
-  const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
 
   // Generate year range (current year to +2 years)
   const yearRange = [];
@@ -41,6 +35,7 @@ export default function BookingScreen({ navigation, route }) {
 
   // Calculate days in selected month
   const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+  const safeDaysInMonth = Math.max(0, Number.isFinite(daysInMonth) ? daysInMonth : 0);
   const firstDayOfWeek = new Date(selectedYear, selectedMonth, 1).getDay();
   
   // Generate calendar grid
@@ -59,8 +54,26 @@ export default function BookingScreen({ navigation, route }) {
     calendarRows.push(row);
   }
 
+  // --- Slot availability state ---
+  const [availableSlots, setAvailableSlots] = useState([]);
+  // Fetch available slots for selected date
+  useEffect(() => {
+    if (!business?.id || !date) return;
+    setAvailableSlots([]);
+    const slotDocRef = doc(db, 'availability', business.id, 'dates', date);
+    const unsub = onSnapshot(slotDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setAvailableSlots((data.slots || []).filter(s => s.available !== false));
+      } else {
+        setAvailableSlots([]);
+      }
+    });
+    return () => unsub();
+  }, [business?.id, date]);
+
   // Time slots
-  const timeSlots = [ "09:00", "11:00", "13:00", "15:30", "17:00", "20:00"];
+  const timeSlots = availableSlots;
 
   // Check if date is in the past
   const isDateDisabled = (day) => {
@@ -84,7 +97,7 @@ export default function BookingScreen({ navigation, route }) {
     try {
       const user = auth.currentUser;
       if (!user) return Alert.alert("Please log in", "You must be logged in to book");
-      if (!service.trim()) return Alert.alert("Missing Information", "Please enter a service name");
+      if (!selectedService) return Alert.alert("Missing Information", "Please select a service");
       if (!bookingDate) return Alert.alert("Missing Information", "Please select a date");
       if (!bookingTime) return Alert.alert("Missing Information", "Please select a time");
       if (!business?.id) {
@@ -110,7 +123,8 @@ export default function BookingScreen({ navigation, route }) {
         customerId: user.uid,
         businessId: business.id,
         businessName: business.name,
-        service: service.trim(),
+        service: selectedService, // (optional, for backward compatibility)
+        menu: selectedService, // Store the full menu object for dashboard revenue calculation
         date: bookingDate,
         time: bookingTime,
         status: "confirmed",
@@ -124,7 +138,7 @@ export default function BookingScreen({ navigation, route }) {
         bookingId: bookingRef.id,
         customerId: user.uid,
         customerName: user.displayName || user.email || "Customer",
-        service: service.trim(),
+        service: selectedService?.name,
         date: bookingDate,
         time: bookingTime,
         note,
@@ -142,13 +156,13 @@ export default function BookingScreen({ navigation, route }) {
           users: [business.id, user.uid],
           businessId: business.id,
           customerId: user.uid,
-          lastMessage: `Booking created for ${service.trim()} on ${bookingDate} at ${bookingTime}`,
+          lastMessage: `Booking created for ${selectedService?.name} on ${bookingDate} at ${bookingTime}`,
           lastUpdated: serverTimestamp(),
         });
         // Add initial message
         await addDoc(collection(db, "threads", threadId, "messages"), {
           senderId: user.uid,
-          text: `Hi! I just booked ${service.trim()} on ${bookingDate} at ${bookingTime}. ${note ? 'Note: ' + note : ''}`,
+          text: `Hi! I just booked ${selectedService?.name} on ${bookingDate} at ${bookingTime}. ${note ? 'Note: ' + note : ''}`,
           createdAt: serverTimestamp(),
         });
       }
@@ -190,24 +204,34 @@ export default function BookingScreen({ navigation, route }) {
         <View style={styles.headerBar}>
           <Text style={styles.headerTitle}>Book</Text>
         </View>
-        {/* Service Input Section */}
+        {/* Service Selection Section */}
         <View style={styles.serviceSection}>
           <Text style={styles.sectionTitle}>Service Details</Text>
-          <View style={styles.serviceInputContainer}>
-            <Feather name="scissors" size={20} color="#2563eb" style={styles.inputIcon} />
-            <TextInput
-              style={styles.serviceInput}
-              value={service}
-              onChangeText={setService}
-              placeholder="Enter service (e.g., Lash Extensions, Manicure)"
-              placeholderTextColor="#7F8C8D"
-            />
-          </View>
-          {/* Pre-fill date/time if provided */}
-          {selectedDate && selectedSlot && (
-            <View style={{ marginTop: 10, alignItems: 'center' }}>
-              <Text style={{ color: '#2563eb', fontWeight: '600' }}>Selected: {selectedDate} at {selectedSlot}</Text>
+          {services.length > 0 ? (
+            <View style={{ marginBottom: 10 }}>
+              {services.map((svc, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  style={{
+                    backgroundColor: selectedService?.name === svc.name ? '#e6e6fa' : '#fff',
+                    borderColor: selectedService?.name === svc.name ? '#6F4EF2' : '#ccc',
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    padding: 12,
+                    marginBottom: 6,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                  onPress={() => setSelectedService(svc)}
+                >
+                  <Text style={{ fontWeight: '600', color: '#2a3656' }}>{svc.name}</Text>
+                  <Text style={{ color: '#6F4EF2', fontWeight: 'bold' }}>{svc.price ? `$${svc.price}` : ''}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
+          ) : (
+            <Text style={{ color: '#888' }}>No services available.</Text>
           )}
         </View>
         {/* Additional Requests/Send Note */}
@@ -239,7 +263,7 @@ export default function BookingScreen({ navigation, route }) {
               </TouchableOpacity>
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
-              {[...Array(daysInMonth)].map((_, i) => {
+              {[...Array(safeDaysInMonth)].map((_, i) => {
                 const dayNum = i + 1;
                 const disabled = isDateDisabled(dayNum);
                 return (
@@ -292,11 +316,11 @@ export default function BookingScreen({ navigation, route }) {
         {/* Book Button */}
         <View style={styles.bookingSection}>
           <TouchableOpacity 
-            style={[styles.bookButton, (!service || !(date || selectedDay) || !(time || selectedTime)) && styles.disabledButton]} 
+            style={[styles.bookButton, (!selectedService || !(date || selectedDay) || !(time || selectedTime)) && styles.disabledButton]} 
             onPress={save}
-            disabled={!service || !(date || selectedDay) || !(time || selectedTime)}
+            disabled={!selectedService || !(date || selectedDay) || !(time || selectedTime)}
           >
-            <View style={(!service || !(date || selectedDay) || !(time || selectedTime)) ? styles.bookButtonDisabled : styles.bookButtonBlue}>
+            <View style={(!selectedService || !(date || selectedDay) || !(time || selectedTime)) ? styles.bookButtonDisabled : styles.bookButtonBlue}>
               <Feather name="calendar" size={20} color="#fff" style={{ marginRight: 8 }} />
               <Text style={styles.bookButtonText}>Book</Text>
             </View>

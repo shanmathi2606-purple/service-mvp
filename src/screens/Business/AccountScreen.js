@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import PaynowQRCode from '../../../components/PaynowQRCode';
 
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
@@ -278,6 +279,12 @@ const AccountScreen = ({ navigation }) => {
                   ListFooterComponent={null}
                 />
               )}
+              {/* Payment Methods: PayNow */}
+              <Text style={{ fontWeight: '700', color: '#0a2540', marginTop: 28, marginBottom: 8, fontSize: 16 }}>Payment Methods</Text>
+              <View style={{ backgroundColor: '#f5f6fa', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                <Text style={{ fontWeight: '600', color: '#34495E', marginBottom: 8 }}>PayNow</Text>
+                <PaynowQRCode />
+              </View>
               {/* Save button (future: connect to Firestore) */}
               <TouchableOpacity onPress={handleSaveProfile} style={{ backgroundColor: '#01012c', borderRadius: 8, padding: 14, marginTop: 18 }}>
                 <Text style={{ color: '#fff', fontWeight: '700', textAlign: 'center', fontSize: 16 }}>Save Profile</Text>

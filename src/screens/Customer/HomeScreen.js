@@ -2,9 +2,9 @@
 // Removed unused Ionicons import
 import * as Location from 'expo-location';
 import { signOut } from "firebase/auth";
-import { collection, deleteDoc, doc, onSnapshot, setDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, onSnapshot, query, setDoc, where } from "firebase/firestore";
 import { useEffect, useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Feather from 'react-native-vector-icons/Feather';
 import CustomerBottomNav from '../../../components/CustomerBottomNav';
 import BusinessCard from "../../components/BusinessCard";
@@ -14,6 +14,9 @@ const HomeScreen = ({ navigation }) => {
   const [locationEnabled, setLocationEnabled] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [favourites, setFavourites] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifModalVisible, setNotifModalVisible] = useState(false);
 
   // Listen to user's favourites in Firestore
   useEffect(() => {
@@ -44,6 +47,19 @@ const HomeScreen = ({ navigation }) => {
       })();
     }
   }, [locationEnabled]);
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const notifRef = collection(db, "users", user.uid, "notifications");
+    const q = query(notifRef, where("read", "==", false));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const notifs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setNotifications(notifs);
+      setUnreadCount(notifs.length);
+    });
+    return unsubscribe;
+  }, [auth.currentUser]);
 
   const handleLogout = async () => {
     try {
@@ -236,21 +252,31 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.topBarRowExpanded}>
             <TouchableOpacity style={styles.topBarButton} onPress={handleLogout}>
               <View style={styles.topBarIconCircle}>
-                <Feather name="log-out" size={22} color="#0a2540" />
+                <Feather name="log-out" size={22} color="#fff" />
               </View>
             </TouchableOpacity>
-            <View style={styles.topBarSearchContainer}>
-              <TextInput
-                placeholder="Search services, salons, or more..."
-                placeholderTextColor="#999"
-                style={styles.topBarSearchInput}
-              />
+            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 35}}>
+              <Text style={styles.topBarWelcomeText}>Welcome Back!</Text>
             </View>
-            <TouchableOpacity style={styles.topBarButton} onPress={() => navigation.navigate("Favourites")}> 
-              <View style={styles.topBarIconCircle}>
-                <View style={styles.topBarIconGoldOutline}>
-                  <Image source={require("../../../assets/images/heart.png")} style={styles.topBarIconVisible} resizeMode="contain" />
-                </View>
+            <TouchableOpacity style={styles.topBarButton} onPress={() => setNotifModalVisible(true)}>
+              <View style={[styles.topBarIconCircle, { marginTop: 18, position: 'relative' }]}> 
+                <Feather name="bell" size={22} color="#fff" />
+                {unreadCount > 0 && (
+                  <View style={{
+                    position: 'absolute',
+                    top: 2,
+                    right: 2,
+                    backgroundColor: '#FFD700',
+                    borderRadius: 8,
+                    minWidth: 16,
+                    height: 16,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    paddingHorizontal: 4,
+                  }}>
+                    <Text style={{ color: '#0a2540', fontWeight: 'bold', fontSize: 10 }}>{unreadCount}</Text>
+                  </View>
+                )}
               </View>
             </TouchableOpacity>
           </View>
@@ -291,7 +317,7 @@ const HomeScreen = ({ navigation }) => {
           <TouchableOpacity onPress={() => setLocationEnabled((v) => !v)}>
             <Text style={[styles.findNearby, locationEnabled && { color: '#2ecc40' }]}>Find Nearby {locationEnabled ? '(On)' : '(Off)'}</Text>
           </TouchableOpacity>
-          <Text style={styles.viewMap}>📍 View on Map</Text>
+          <Text style={styles.viewMap}>View on Map</Text>
         </View>
         {locationEnabled && userLocation && (
           <View style={{ padding: 10, alignItems: 'center' }}>
@@ -312,6 +338,32 @@ const HomeScreen = ({ navigation }) => {
           </View>
         ))}
       </ScrollView>
+      {/* Notification Modal */}
+      <Modal
+        visible={notifModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setNotifModalVisible(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 24, width: '80%', maxHeight: '60%' }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 12 }}>Notifications</Text>
+            {notifications.length === 0 ? (
+              <Text style={{ color: '#888', textAlign: 'center' }}>No new notifications.</Text>
+            ) : (
+              notifications.map((notif) => (
+                <View key={notif.id} style={{ marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 8 }}>
+                  <Text style={{ color: '#0a2540', fontWeight: '600' }}>{notif.message || 'You have a new booking or reminder.'}</Text>
+                  <Text style={{ color: '#888', fontSize: 12 }}>{notif.createdAt?.toDate ? notif.createdAt.toDate().toLocaleString() : ''}</Text>
+                </View>
+              ))
+            )}
+            <TouchableOpacity style={{ marginTop: 16, alignSelf: 'center' }} onPress={() => setNotifModalVisible(false)}>
+              <Text style={{ color: '#6F4EF2', fontWeight: 'bold', fontSize: 16 }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       {/* Bottom Navigation */}
       <CustomerBottomNav navigation={navigation} active="Home" />
     </View>
@@ -321,11 +373,11 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff', // Clean white background
+    backgroundColor: 'rgb(255, 255, 255)', // Clean white background
     paddingTop: 0, // Remove extra padding
   },
   headerBackground: {
-    backgroundColor: '#0a2540', // Dark navy blue with a hint of cyan
+    backgroundColor: '#ffffff', // Dark navy blue with a hint of cyan
     height: 100, // Increased from 70 to 100 for a taller top bar
     width: '100%',
     justifyContent: 'center',
@@ -365,12 +417,12 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   logoutText: {
-    color: "#34495E",
+    color: "#ffffff",
     fontSize: 12,
     fontWeight: "600",
   },
   headerText: {
-    color: "#34495E",
+    color: "#0a2540",
     fontSize: 22,
     fontWeight: "700",
     flex: 1,
@@ -411,7 +463,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   categoryButton: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#ffffff",
     borderRadius: 15,
     padding: 20,
     alignItems: "center",
@@ -422,18 +474,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    borderWidth: 1,
-    borderColor: "#EEF3F7",
+    borderWidth: 0.2,
+    borderColor: "#002442",
   },
   categoryIcon: {
-    width: 40,
+    width: 55,
     height: 40,
     marginBottom: 8,
   },
   categoryText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#34495E",
+    color: "#060234",
     textAlign: "center",
   },
   findNearbyRow: {
@@ -493,7 +545,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   topBarWelcomeText: {
-    color: '#fff',
+    color: '#0a2540',
     fontSize: 18,
     fontWeight: '700',
     textAlign: 'center',
@@ -506,7 +558,7 @@ const styles = StyleSheet.create({
     tintColor: '#fff',
   },
   topBarIconCircle: {
-    backgroundColor: '#fff',
+    backgroundColor: '#0a2540',
     borderRadius: 16,
     width: 32,
     height: 32,
@@ -518,12 +570,12 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  topBarIconGoldOutline: {
+  topBarIconOutline: {
     borderWidth: 2.5,
-    borderColor: '#FFD700', // Bolder Gold
+    borderColor: '#ffffff', 
     borderRadius: 15,
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 35,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',

@@ -1,6 +1,6 @@
 // src/screens/FoodDiningScreen.js
 import { LinearGradient } from 'expo-linear-gradient';
-import { Bell } from 'lucide-react-native';
+import { Bell, Fish, Pizza, Utensils } from 'lucide-react-native';
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomerBottomNav from '../../../components/CustomerBottomNav';
@@ -69,7 +69,7 @@ const FoodDiningScreen = ({ navigation }) => {
           {/* Additional Restaurant Examples */}
           <TouchableOpacity style={styles.card}>
             <View style={styles.placeholderImage}>
-              {/* Add Lucide restaurant icon if needed */}
+              <Utensils size={32} color="#FFA500" />
             </View>
             <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Golden Dragon Chinese</Text>
@@ -85,7 +85,7 @@ const FoodDiningScreen = ({ navigation }) => {
 
           <TouchableOpacity style={styles.card}>
             <View style={styles.placeholderImage}>
-              {/* Add Lucide pizza icon if needed */}
+              <Pizza size={32} color="#FF6347" />
             </View>
             <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Bella Italia</Text>
@@ -101,7 +101,7 @@ const FoodDiningScreen = ({ navigation }) => {
 
           <TouchableOpacity style={styles.card}>
             <View style={styles.placeholderImage}>
-              {/* Add Lucide fish icon if needed */}
+              <Fish size={32} color="#4682B4" />
             </View>
             <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Ocean Fresh Seafood</Text>

@@ -8,29 +8,29 @@ export default function BusinessBottomNav({ navigation, active }) {
         style={styles.tab}
         onPress={() => navigation.navigate('BusinessHome')}
       >
-        <Home color={active === 'Home' ? '#0a2540' : '#ffffff'} size={26} />
-        <Text style={[styles.label, active === 'Home' && styles.activeLabel]}>Home</Text>
+        <Home color={active === 'Home' ? '#FFD700' : '#fff'} size={26} />
+        <Text style={[styles.navItem, active === 'Home' && styles.activeNavItem]}>Home</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.tab}
         onPress={() => navigation.navigate('BusinessCalendar')}
       >
-        <Calendar color={active === 'Calendar' ? '#0a2540' : '#ffffff'} size={26} />
-        <Text style={[styles.label, active === 'Calendar' && styles.activeLabel]}>Calendar</Text>
+        <Calendar color={active === 'Calendar' ? '#FFD700' : '#fff'} size={26} />
+        <Text style={[styles.navItem, active === 'Calendar' && styles.activeNavItem]}>Calendar</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.tab}
         onPress={() => navigation.navigate('ChatScreen')}
       >
-        <MessageCircle color={active === 'Chat' ? '#0a2540' : '#ffffff'} size={26} />
-        <Text style={[styles.label, active === 'Chat' && styles.activeLabel]}>Chat</Text>
+        <MessageCircle color={active === 'Chat' ? '#FFD700' : '#fff'} size={26} />
+        <Text style={[styles.navItem, active === 'Chat' && styles.activeNavItem]}>Chat</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.tab}
         onPress={() => navigation.navigate('AccountScreen')}
       >
-        <UserCog color={active === 'Account' ? '#0a2540' : '#ffffff'} size={26} />
-        <Text style={[styles.label, active === 'Account' && styles.activeLabel]}>Account</Text>
+        <UserCog color={active === 'Account' ? '#FFD700' : '#fff'} size={26} />
+        <Text style={[styles.navItem, active === 'Account' && styles.activeNavItem]}>Account</Text>
       </TouchableOpacity>
     </View>
   );
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#34495E',
+    backgroundColor: '#0a2540',
     height: 70,
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
@@ -54,13 +54,25 @@ const styles = StyleSheet.create({
   },
   tab: {
     alignItems: 'center',
-    flex: 1,
+    justifyContent: 'center',
+    paddingVertical: 5,
+  },
+  navItem: {
+    color: '#fff',
+    fontSize: 9,
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  activeNavItem: {
+    color: '#FFD700',
+    fontWeight: 'bold',
   },
   label: {
-    fontSize: 12,
-    color: '#ffffff',
+    // legacy, for compatibility
+    color: '#fff',
+    fontSize: 9,
+    textAlign: 'center',
     marginTop: 2,
-    fontWeight: '600',
   },
   activeLabel: {
     color: '#FFD700',

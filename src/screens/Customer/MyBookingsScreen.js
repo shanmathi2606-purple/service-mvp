@@ -45,7 +45,11 @@ export default function MyBookingsScreen({ navigation }) {
         renderItem={({ item }) => (
           <View style={styles.bookingCard}>
             <View style={styles.cardHeader}>
-              <Text style={styles.serviceName}>{item.service}</Text>
+              <Text style={styles.serviceName}>
+                {typeof item.service === 'object' && item.service !== null
+                  ? `${item.service.name} (${item.service.price ? `$${item.service.price}` : ''})`
+                  : item.service}
+              </Text>
               <View style={[styles.statusBadge, 
                 item.status === 'confirmed' ? styles.confirmedBadge : 
                 item.status === 'pending' ? styles.pendingBadge : styles.cancelledBadge
@@ -73,13 +77,6 @@ export default function MyBookingsScreen({ navigation }) {
         }
       />
 
-      {/* Floating Action Button */}
-      <TouchableOpacity 
-        style={styles.fab}
-        onPress={() => navigation.navigate("Booking")}
-      >
-        {/* Add Lucide plus icon if needed */}
-      </TouchableOpacity>
       <CustomerBottomNav navigation={navigation} active="MyBookings" />
     </View>
   );

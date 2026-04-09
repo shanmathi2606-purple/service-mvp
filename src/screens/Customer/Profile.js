@@ -1,6 +1,6 @@
 // src/screens/Profile.js
 import { Feather } from '@expo/vector-icons';
-import { Bell, ChevronRight, CreditCard, HelpCircle, Settings, User } from 'lucide-react-native';
+import { Bell, ChevronRight, HelpCircle, Settings, User } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomerBottomNav from '../../../components/CustomerBottomNav';
@@ -11,18 +11,17 @@ const Profile = ({ navigation }) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         
         {/* Header */}
-        <View style={styles.header}>
+        <View style={styles.header}> 
           <Text style={styles.headerTitle}>Profile</Text>
         </View>
-
-        {/* Profile Content */}
+        {/* Profile Content */}    
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
               <User size={40} color="#34495E" />
             </View>
             <Text style={styles.userName}>Shan</Text>
-            <Text style={styles.userEmail}>shan@example.com</Text>
+            <Text style={styles.userEmail}>user@example.com</Text>
           </View>
 
           {/* Profile Options */}
@@ -36,12 +35,6 @@ const Profile = ({ navigation }) => {
             <TouchableOpacity style={styles.optionItem}>
               <Bell size={20} color="#34495E" />
               <Text style={styles.optionText}>Notifications</Text>
-              <ChevronRight size={20} color="#999" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.optionItem}>
-              <CreditCard size={20} color="#34495E" />
-              <Text style={styles.optionText}>Payment Methods</Text>
               <ChevronRight size={20} color="#999" />
             </TouchableOpacity>
 
@@ -71,8 +64,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7FBFE",
   },
   header: {
-    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
@@ -84,6 +77,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "700",
     color: "#34495E",
+    textAlign: "center",
   },
   profileSection: {
     paddingHorizontal: 20,

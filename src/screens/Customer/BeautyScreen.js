@@ -1,15 +1,42 @@
 // src/screens/BeautyScreen.js
 import { LinearGradient } from 'expo-linear-gradient';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { Bell } from 'lucide-react-native';
+import { collection, deleteDoc, doc, getDocs, onSnapshot, query, setDoc, where } from 'firebase/firestore';
+import { Bell, Flower, Scissors, Sparkles } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Feather from 'react-native-vector-icons/Feather';
 import CustomerBottomNav from '../../../components/CustomerBottomNav';
-import { db } from '../../firebase';
+import { auth, db } from '../../firebase';
 
 const BeautyScreen = ({ navigation }) => {
   const [businesses, setBusinesses] = useState([]);
   const [realProfiles, setRealProfiles] = useState([]);
+  const [favourites, setFavourites] = useState([]);
+  // Listen to user's favourites in Firestore
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const favRef = collection(db, "users", user.uid, "favourites");
+    const unsubscribe = onSnapshot(favRef, (snapshot) => {
+      setFavourites(snapshot.docs.map(doc => doc.id));
+    });
+    return unsubscribe;
+  }, [auth.currentUser]);
+
+  // Toggle favourite in Firestore
+  const handleToggleFavourite = async (profile) => {
+    const user = auth.currentUser;
+    if (!user) {
+      Alert.alert("Please log in", "You must be logged in to save favourites.");
+      return;
+    }
+    const favRef = doc(db, "users", user.uid, "favourites", String(profile.id));
+    if (favourites.includes(String(profile.id))) {
+      await deleteDoc(favRef);
+    } else {
+      await setDoc(favRef, { businessId: profile.id, addedAt: new Date() });
+    }
+  };
 
   useEffect(() => {
     const fetchBusinesses = async () => {
@@ -79,24 +106,34 @@ const BeautyScreen = ({ navigation }) => {
         {/* Real Business Profiles from Firestore */}
         {realProfiles.length > 0 && (
           <View style={{ marginBottom: 24 }}>
-            <Text style={styles.businessTitle}>Live Beauty Businesses</Text>
+            <Text style={styles.businessTitle}>   Live Beauty Businesses</Text>
             {realProfiles.map(profile => (
               <TouchableOpacity
                 key={profile.id}
                 style={styles.card}
                 onPress={() => navigation.navigate('BusinessProfile', { business: profile })}
+                activeOpacity={0.9}
               >
-                {profile.image ? (
-                  <Image source={{ uri: profile.image }} style={styles.cardImage} />
-                ) : (
-                  <View style={styles.placeholderImage} />
-                )}
                 <View style={styles.cardContent}>
                   <Text style={styles.cardTitle}>{profile.name}</Text>
                   <Text style={styles.cardSubtitle}>{profile.description}</Text>
                   <Text style={styles.cardServices}>{Array.isArray(profile.menu) ? profile.menu.map(s => s.name).join(' • ') : ''}</Text>
                 </View>
                 <View style={styles.cardRight}>
+                  <TouchableOpacity
+                    onPress={(e) => {
+                      e.stopPropagation && e.stopPropagation();
+                      handleToggleFavourite(profile);
+                    }}
+                    style={{ padding: 4 }}
+                  >
+                    <Feather
+                      name={favourites.includes(String(profile.id)) ? 'heart' : 'heart'}
+                      size={22}
+                      color={favourites.includes(String(profile.id)) ? '#e11d48' : '#bbb'}
+                      solid={favourites.includes(String(profile.id))}
+                    />
+                  </TouchableOpacity>
                   <Text style={styles.price}>Menu</Text>
                 </View>
               </TouchableOpacity>
@@ -141,7 +178,7 @@ const BeautyScreen = ({ navigation }) => {
           {/* Beauty Salon Example 1 */}
           <TouchableOpacity style={styles.card}>
             <View style={styles.placeholderImage}>
-              {/* Add Lucide cut icon if needed */}
+              <Scissors size={32} color="#C084FC" />
             </View>
             <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Glam Studio</Text>
@@ -157,9 +194,8 @@ const BeautyScreen = ({ navigation }) => {
 
           {/* Beauty Salon Example 2 */}
           <TouchableOpacity style={styles.card}>
-           <View style={styles.placeholderImage}>
-              {/* Add Lucide sparkles icon if needed */}
-                  <Image source={require("../../../assets/images/lashes.png")} style={styles.cardImage} />
+            <View style={styles.placeholderImage}>
+              <Sparkles size={32} color="#F472B6" />
             </View>
             <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Radiant Beauty</Text>
@@ -176,7 +212,7 @@ const BeautyScreen = ({ navigation }) => {
           {/* Beauty Salon Example 3 */}
           <TouchableOpacity style={styles.card}>
             <View style={styles.placeholderImage}>
-              {/* Add Lucide flower icon if needed */}
+              <Flower size={32} color="#FBBF24" />
             </View>
             <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Blossom Beauty Bar</Text>
